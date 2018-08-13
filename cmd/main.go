@@ -8,8 +8,12 @@ import (
 	av "github.com/cmckee-dev/go-alpha-vantage"
 )
 
-func getQuote(symbol string) (float64, error) {
-	client := av.NewClient(os.Getenv("AV_API_KEY"))
+// Environment vars
+var avAPIKey = os.Getenv("AV_API_KEY")
+var avSymbol = os.Getenv("AV_SYMBOL")
+
+// getLatestQuote fetches the latest closing quote for a symbol.
+func getLatestQuote(client *av.Client, symbol string) (float64, error) {
 	values, err := client.StockTimeSeries(av.TimeSeriesDaily, symbol)
 	if err != nil {
 		return 0.0, err
@@ -17,8 +21,10 @@ func getQuote(symbol string) (float64, error) {
 	return values[len(values)-1].Close, nil
 }
 
+// main.
 func main() {
-	q, err := getQuote("GOOG")
+	client := av.NewClient(avAPIKey)
+	q, err := getLatestQuote(client, avSymbol)
 	if err != nil {
 		log.Fatal(err)
 	}
